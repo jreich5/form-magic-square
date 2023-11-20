@@ -1,9 +1,6 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Main {
 
@@ -13,6 +10,7 @@ public class Main {
 
     /**
      * Checks if a given list of integer lists is a 3 x 3 square
+     *
      * @param square - a multi-dimensional list
      * @return a boolean based on if the passed list is a valid 3x3 square
      */
@@ -27,6 +25,7 @@ public class Main {
 
     /**
      * Returns true or false based on if the passed string is the right length for a 3 x 3
+     *
      * @param string - any string input
      * @return a boolean based on if the string is the correct length for a 3 x 3 output
      */
@@ -40,6 +39,18 @@ public class Main {
         return true;
     }
 
+    /**
+     * Returns a formatted string output of a 3 x 3 two-dimensional integer list.
+     * Example input... List<List<Integer> : ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+     * Example output...
+     * """
+     * 1 2 3
+     * 4 5 6
+     * 7 8 9"""
+     *
+     * @param square - 3 x 3 two-dimensional integer list
+     * @return a string of formatted output of the input
+     */
     public static String returnSquareToString(List<List<Integer>> square) {
         if (!isValid3x3Square(square)) throw new RuntimeException("Invalid 3 x 3 square!");
         StringBuilder output = new StringBuilder();
@@ -55,6 +66,18 @@ public class Main {
         return output.toString().trim();
     }
 
+    /**
+     * Returns a 3 x 3 two-dimensional integer list given a formatted string of integers.
+     * Example input...
+     * """
+     * 1 2 3
+     * 4 5 6
+     * 7 8 9"""
+     * Example output... List<List<Integer> : ((1, 2, 3), (4, 5, 6), (7, 8, 9))
+     *
+     * @param input - a formatted string to represent a 3 x 3 square of digits
+     * @return a 3 x 3 two-dimensional integer list
+     */
     public static List<List<Integer>> returnStringToSquare(String input) {
         List<List<Integer>> square = new ArrayList<>();
         List<Integer> nums = new ArrayList<>();
@@ -73,11 +96,6 @@ public class Main {
         }
         return square;
     }
-
-    // createAllValidSquares
-    // calculateTotalDifference
-    // calculateLowestTotalDifference
-
 
     // loadCorners
     public static List<Integer> loadCorners(List<List<Integer>> square) {
@@ -145,39 +163,54 @@ public class Main {
         return square;
     }
 
-
-    public static void main(String[] args) {
-
-        List<List<Integer>> inputSquare = new ArrayList<>(Arrays.asList(
-            new ArrayList<>(Arrays.asList(1, 2, 3)),
-            new ArrayList<>(Arrays.asList(8, 5, 4)),
-            new ArrayList<>(Arrays.asList(9, 6, 7))
-        ));
-
-//        System.out.println(inputSquare);
-//        List<List<Integer>> rotatedSquare = rotateSquareClockwise(inputSquare);
-//        System.out.println(rotatedSquare);
-
-        System.out.println(inputSquare);
-        List<List<Integer>> flippedSquare = flipSquare(inputSquare);
-        System.out.println(inputSquare);
-
-//        String testInput = """
-//            1 1 1
-//            2 2 2
-//            3 3 3
-//            """.trim();
-//        String[] characters = testInput.split("");
-//        System.out.println(Arrays.toString(characters));
-
-
-//        List<List<Integer>> ms = new ArrayList<>();
-//        List<Integer> row1 = new ArrayList<>(Arrays.asList(1, 1, 1));
-//        List<Integer> row2 = new ArrayList<>(Arrays.asList(2, 2, 2));
-//        List<Integer> row3 = new ArrayList<>(Arrays.asList(3, 3, 3));
-//        ms.add(row1);
-//        ms.add(row2);
-//        ms.add(row3);
-//        System.out.println(returnFormattedSquare(ms));
+    public static List<List<Integer>> deepCopyOfSquareValues(List<List<Integer>> square) {
+        List<List<Integer>> deepCopy = new ArrayList<>();
+        for (List<Integer> row : square) {
+            List<Integer> deepRow = new ArrayList<>(row);
+            deepCopy.add(deepRow);
+        }
+        return deepCopy;
     }
+
+    public static Map<Integer, List<List<Integer>>> createAllValid3x3PerfectSquares() {
+        Map<Integer, List<List<Integer>>> squares = new HashMap<>();
+        List<List<Integer>> square = new ArrayList<>(Arrays.asList(
+            new ArrayList<>(Arrays.asList(8, 3, 4)),
+            new ArrayList<>(Arrays.asList(1, 5, 9)),
+            new ArrayList<>(Arrays.asList(6, 7, 2))
+        ));
+        for (int i = 1; i <= 8; i += 1) {
+            squares.put(i, deepCopyOfSquareValues(square));
+            if (i % 2 != 0) {
+                flipSquare(square);
+            } else {
+                flipSquare(square);
+                rotateSquareClockwise(square);
+            }
+        }
+        return squares;
+    }
+
+    public static int find3x3SquareDifference(List<List<Integer>> square1, List<List<Integer>> square2) {
+        int difference = 0;
+        for (int i = 0; i < 3; i += 1) {
+            for (int j = 0; j < 3; j += 1) {
+                difference += Math.abs(square1.get(i).get(j) - square2.get(i).get(j));
+            }
+        }
+        return difference;
+    }
+
+    public static int findLowestSquareDifference(List<List<Integer>> square) {
+        int lowestDifference = 1000;
+        Map<Integer, List<List<Integer>>> squares = createAllValid3x3PerfectSquares();
+        for (int i = 1; i <= 8; i += 1) {
+            int difference = find3x3SquareDifference(square, squares.get(i));
+            if (difference < lowestDifference) {
+                lowestDifference = difference;
+            }
+        }
+        return lowestDifference;
+    }
+
 }
